@@ -32,68 +32,13 @@ if (isFirebaseConfigValid()) {
 let persons = [];
 let transactions = [];
 
-// Seed Firestore with Showcase Data
-function seedFirestore() {
-    const seedUUID = () => generateUUID();
-    const dummyPersons = [
-        { id: seedUUID(), name: "Alice" },
-        { id: seedUUID(), name: "Bob" },
-        { id: seedUUID(), name: "Charlie" },
-        { id: seedUUID(), name: "Diana" },
-        { id: seedUUID(), name: "Ethan" }
-    ];
-    
-    const getId = (name) => dummyPersons.find(p => p.name === name).id;
-
-    const dummyTransactions = [
-        { id: seedUUID(), lenderId: getId("Alice"), borrowerId: getId("Bob"), amount: 120.50, description: "Dinner at Mario's", date: new Date(Date.now() - 86400000 * 5).toISOString() },
-        { id: seedUUID(), lenderId: getId("Charlie"), borrowerId: getId("Alice"), amount: 45.00, description: "Movie tickets", date: new Date(Date.now() - 86400000 * 4).toISOString() },
-        { id: seedUUID(), lenderId: getId("Bob"), borrowerId: getId("Diana"), amount: 300.00, description: "Airbnb booking", date: new Date(Date.now() - 86400000 * 3).toISOString() },
-        { id: seedUUID(), lenderId: getId("Diana"), borrowerId: getId("Ethan"), amount: 50.00, description: "Gas money", date: new Date(Date.now() - 86400000 * 2).toISOString() },
-        { id: seedUUID(), lenderId: getId("Ethan"), borrowerId: getId("Bob"), amount: 80.00, description: "Groceries", date: new Date(Date.now() - 86400000 * 1).toISOString() },
-        { id: seedUUID(), lenderId: getId("Alice"), borrowerId: getId("Ethan"), amount: 15.50, description: "Coffee", date: new Date().toISOString() },
-        { id: seedUUID(), lenderId: getId("Bob"), borrowerId: getId("Charlie"), amount: 200.00, description: "Concert tickets", date: new Date(Date.now() - 86400000 * 6).toISOString() },
-        { id: seedUUID(), lenderId: getId("Charlie"), borrowerId: getId("Diana"), amount: 75.00, description: "Lunch", date: new Date(Date.now() - 86400000 * 7).toISOString() },
-        { id: seedUUID(), lenderId: getId("Ethan"), borrowerId: getId("Alice"), amount: 25.00, description: "Uber ride", date: new Date(Date.now() - 86400000 * 8).toISOString() },
-        { id: seedUUID(), lenderId: getId("Alice"), borrowerId: getId("Diana"), amount: 150.00, description: "Flight tickets", date: new Date(Date.now() - 86400000 * 10).toISOString() },
-        { id: seedUUID(), lenderId: getId("Bob"), borrowerId: getId("Ethan"), amount: 90.00, description: "Ski pass", date: new Date(Date.now() - 86400000 * 11).toISOString() },
-        { id: seedUUID(), lenderId: getId("Diana"), borrowerId: getId("Alice"), amount: 110.00, description: "Hotel stay", date: new Date(Date.now() - 86400000 * 13).toISOString() }
-    ];
-
-    const batch = db.batch();
-    dummyPersons.forEach(p => {
-        const ref = db.collection('persons').doc(p.id);
-        batch.set(ref, { name: p.name });
-    });
-    dummyTransactions.forEach(t => {
-        const ref = db.collection('transactions').doc(t.id);
-        batch.set(ref, {
-            lenderId: t.lenderId,
-            borrowerId: t.borrowerId,
-            amount: t.amount,
-            description: t.description,
-            date: t.date
-        });
-    });
-
-    batch.commit().then(() => {
-        console.log("Firestore successfully seeded with dummy data.");
-    }).catch(err => {
-        console.error("Error seeding Firestore:", err);
-    });
-}
-
 if (useFirebase) {
     let personsLoaded = false;
     let transactionsLoaded = false;
 
     const checkAndSeed = () => {
         if (personsLoaded && transactionsLoaded) {
-            if (persons.length === 0) {
-                seedFirestore();
-            } else {
-                render();
-            }
+            render();
         }
     };
 
@@ -116,43 +61,6 @@ if (useFirebase) {
     // LocalStorage Fallback state loading
     persons = JSON.parse(localStorage.getItem('group_ledger_persons')) || [];
     transactions = JSON.parse(localStorage.getItem('group_ledger_transactions')) || [];
-
-    // Dummy Data Seeding for Showcase
-    if (!localStorage.getItem('group_ledger_seeded_v3')) {
-        const seedUUID = () => crypto.randomUUID();
-        
-        const dummyPersons = [
-            { id: seedUUID(), name: "Alice" },
-            { id: seedUUID(), name: "Bob" },
-            { id: seedUUID(), name: "Charlie" },
-            { id: seedUUID(), name: "Diana" },
-            { id: seedUUID(), name: "Ethan" }
-        ];
-        
-        const getId = (name) => dummyPersons.find(p => p.name === name).id;
-
-        const dummyTransactions = [
-            { id: seedUUID(), lenderId: getId("Alice"), borrowerId: getId("Bob"), amount: 120.50, description: "Dinner at Mario's", date: new Date(Date.now() - 86400000 * 5).toISOString() },
-            { id: seedUUID(), lenderId: getId("Charlie"), borrowerId: getId("Alice"), amount: 45.00, description: "Movie tickets", date: new Date(Date.now() - 86400000 * 4).toISOString() },
-            { id: seedUUID(), lenderId: getId("Bob"), borrowerId: getId("Diana"), amount: 300.00, description: "Airbnb booking", date: new Date(Date.now() - 86400000 * 3).toISOString() },
-            { id: seedUUID(), lenderId: getId("Diana"), borrowerId: getId("Ethan"), amount: 50.00, description: "Gas money", date: new Date(Date.now() - 86400000 * 2).toISOString() },
-            { id: seedUUID(), lenderId: getId("Ethan"), borrowerId: getId("Bob"), amount: 80.00, description: "Groceries", date: new Date(Date.now() - 86400000 * 1).toISOString() },
-            { id: seedUUID(), lenderId: getId("Alice"), borrowerId: getId("Ethan"), amount: 15.50, description: "Coffee", date: new Date().toISOString() },
-            { id: seedUUID(), lenderId: getId("Bob"), borrowerId: getId("Charlie"), amount: 200.00, description: "Concert tickets", date: new Date(Date.now() - 86400000 * 6).toISOString() },
-            { id: seedUUID(), lenderId: getId("Charlie"), borrowerId: getId("Diana"), amount: 75.00, description: "Lunch", date: new Date(Date.now() - 86400000 * 7).toISOString() },
-            { id: seedUUID(), lenderId: getId("Ethan"), borrowerId: getId("Alice"), amount: 25.00, description: "Uber ride", date: new Date(Date.now() - 86400000 * 8).toISOString() },
-            { id: seedUUID(), lenderId: getId("Alice"), borrowerId: getId("Diana"), amount: 150.00, description: "Flight tickets", date: new Date(Date.now() - 86400000 * 10).toISOString() },
-            { id: seedUUID(), lenderId: getId("Bob"), borrowerId: getId("Ethan"), amount: 90.00, description: "Ski pass", date: new Date(Date.now() - 86400000 * 11).toISOString() },
-            { id: seedUUID(), lenderId: getId("Diana"), borrowerId: getId("Alice"), amount: 110.00, description: "Hotel stay", date: new Date(Date.now() - 86400000 * 13).toISOString() }
-        ];
-
-        localStorage.setItem('group_ledger_persons', JSON.stringify(dummyPersons));
-        localStorage.setItem('group_ledger_transactions', JSON.stringify(dummyTransactions));
-        localStorage.setItem('group_ledger_seeded_v3', 'true');
-        
-        persons = dummyPersons;
-        transactions = dummyTransactions;
-    }
 }
 
 let currentViewUserId = '';
@@ -219,18 +127,24 @@ formAddPerson.addEventListener('submit', (e) => {
 
 // Remove Person
 function removePerson(id) {
-    // Check if person has transactions
-    const hasTransactions = transactions.some(t => t.lenderId === id || t.borrowerId === id);
-    if (hasTransactions) {
-        alert("Cannot remove a person who is part of a transaction. Settle or delete their transactions first.");
-        return;
-    }
-    if (useFirebase) {
-        db.collection('persons').doc(id).delete()
-            .catch(err => alert("Error removing person: " + err.message));
-    } else {
-        persons = persons.filter(p => p.id !== id);
-        saveData();
+    if (confirm("Are you sure you want to delete this person? This will also delete all of their transactions.")) {
+        if (useFirebase) {
+            const txToDelete = transactions.filter(t => t.lenderId === id || t.borrowerId === id);
+            const batch = db.batch();
+            
+            txToDelete.forEach(t => {
+                batch.delete(db.collection('transactions').doc(t.id));
+            });
+            
+            batch.delete(db.collection('persons').doc(id));
+            
+            batch.commit()
+                .catch(err => alert("Error removing person and their transactions: " + err.message));
+        } else {
+            transactions = transactions.filter(t => t.lenderId !== id && t.borrowerId !== id);
+            persons = persons.filter(p => p.id !== id);
+            saveData();
+        }
     }
 }
 
@@ -438,7 +352,7 @@ function renderHistory() {
                 <span class="history-item-desc">${t.description} • ${date}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="history-item-amount">$${t.amount.toFixed(2)}</span>
+                <span class="history-item-amount">₹${t.amount.toFixed(2)}</span>
                 <button class="btn-danger-sm" onclick="removeTransaction('${t.id}')">&times;</button>
             </div>
         </div>
@@ -549,7 +463,7 @@ function renderBalances() {
                         ${debtorNameHtml} owe${(currentViewUserId && debtor.id === currentViewUserId) ? '' : 's'} ${creditorNameHtml}
                     </div>
                     <div style="display: flex; align-items: center; gap: 1rem;">
-                        <span class="history-item-amount amount-negative">$${amount.toFixed(2)}</span>
+                        <span class="history-item-amount amount-negative">₹${amount.toFixed(2)}</span>
                         <button class="btn btn-secondary btn-sm" 
                             onclick="event.stopPropagation(); settleDebt('${creditor.id}', '${debtor.id}', ${amount})">Settle Up</button>
                     </div>
@@ -592,10 +506,10 @@ function renderBalances() {
                     let balanceClass = '';
                     
                     if (net > 0) {
-                        balanceText = `owed $${net.toFixed(2)}`;
+                        balanceText = `owed ₹${net.toFixed(2)}`;
                         balanceClass = 'amount-positive';
                     } else if (net < 0) {
-                        balanceText = `owes $${Math.abs(net).toFixed(2)}`;
+                        balanceText = `owes ₹${Math.abs(net).toFixed(2)}`;
                         balanceClass = 'amount-negative';
                     }
 
@@ -617,9 +531,9 @@ function renderBalances() {
         personalSummary.classList.remove('hidden');
         let netTotal = totalOwedToUser - totalUserOwes;
         if (netTotal > 0) {
-            personalSummary.innerHTML = `Overall, you are owed <span class="amount-positive">$${netTotal.toFixed(2)}</span>`;
+            personalSummary.innerHTML = `Overall, you are owed <span class="amount-positive">₹${netTotal.toFixed(2)}</span>`;
         } else if (netTotal < 0) {
-            personalSummary.innerHTML = `Overall, you owe <span class="amount-negative">$${Math.abs(netTotal).toFixed(2)}</span>`;
+            personalSummary.innerHTML = `Overall, you owe <span class="amount-negative">₹${Math.abs(netTotal).toFixed(2)}</span>`;
         } else {
             personalSummary.innerHTML = `Your overall balance is settled.`;
         }
@@ -702,13 +616,13 @@ function renderIndividualHistoryModal() {
     const net = balances[currentViewUserId] ? (balances[currentViewUserId][otherUser.id] || 0) : 0;
     
     if (net > 0) {
-        indHistorySummary.innerHTML = `${otherUser.name} owes you <span class="amount-positive">$${net.toFixed(2)}</span>`;
+        indHistorySummary.innerHTML = `${otherUser.name} owes you <span class="amount-positive">₹${net.toFixed(2)}</span>`;
         indHistorySettleContainer.innerHTML = `
             <button class="btn btn-primary" onclick="event.stopPropagation(); modalSettleDebt('${currentViewUserId}', '${otherUser.id}', ${net})">Settle Up</button>
         `;
     } else if (net < 0) {
         const absNet = Math.abs(net);
-        indHistorySummary.innerHTML = `You owe ${otherUser.name} <span class="amount-negative">$${absNet.toFixed(2)}</span>`;
+        indHistorySummary.innerHTML = `You owe ${otherUser.name} <span class="amount-negative">₹${absNet.toFixed(2)}</span>`;
         indHistorySettleContainer.innerHTML = `
             <button class="btn btn-primary" onclick="event.stopPropagation(); modalSettleDebt('${otherUser.id}', '${currentViewUserId}', ${absNet})">Settle Up</button>
         `;
@@ -744,7 +658,7 @@ function renderIndividualHistoryModal() {
                 <span class="history-item-desc">${t.description} • ${date}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <span class="history-item-amount">$${t.amount.toFixed(2)}</span>
+                <span class="history-item-amount">₹${t.amount.toFixed(2)}</span>
                 <button class="btn-danger-sm" onclick="event.stopPropagation(); removeTransactionFromModal('${t.id}')">&times;</button>
             </div>
         </div>
@@ -815,7 +729,181 @@ function switchTab(tabName) {
             content.classList.remove('active');
         }
     });
+
+    // Refresh calendar whenever switching to it
+    if (tabName === 'calendar') {
+        renderCalendar();
+    }
 }
 
 // Initial render
 render();
+
+// =====================================================
+// Calendar Feature
+// =====================================================
+
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-indexed
+let selectedCalDay = null; // "YYYY-MM-DD" or null
+
+// DOM references
+const calGrid           = document.getElementById('cal-grid');
+const calMonthLabel     = document.getElementById('cal-month-label');
+const calDayDetail      = document.getElementById('cal-day-detail');
+const calDayDetailTitle  = document.getElementById('cal-day-detail-title');
+const calDayDetailList   = document.getElementById('cal-day-detail-list');
+const btnCalPrev         = document.getElementById('btn-cal-prev');
+const btnCalToday        = document.getElementById('btn-cal-today');
+const btnCalNext         = document.getElementById('btn-cal-next');
+const btnCloseCalDetail  = document.getElementById('btn-close-cal-detail');
+
+btnCalPrev.addEventListener('click', () => {
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    selectedCalDay = null;
+    renderCalendar();
+});
+
+btnCalNext.addEventListener('click', () => {
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    selectedCalDay = null;
+    renderCalendar();
+});
+
+btnCalToday.addEventListener('click', () => {
+    calYear  = new Date().getFullYear();
+    calMonth = new Date().getMonth();
+    selectedCalDay = null;
+    renderCalendar();
+});
+
+btnCloseCalDetail.addEventListener('click', () => {
+    selectedCalDay = null;
+    renderCalendar();
+});
+
+// Returns "YYYY-MM-DD" for a Date object
+function toDateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Returns transactions filtered by current view user (or all)
+function getFilteredCalTransactions() {
+    if (!currentViewUserId) return transactions;
+    return transactions.filter(t => t.lenderId === currentViewUserId || t.borrowerId === currentViewUserId);
+}
+
+// Builds a map: { "YYYY-MM-DD": [tx, ...] }
+function buildTxByDay() {
+    const map = {};
+    getFilteredCalTransactions().forEach(t => {
+        const key = toDateKey(new Date(t.date));
+        if (!map[key]) map[key] = [];
+        map[key].push(t);
+    });
+    return map;
+}
+
+function renderCalendar() {
+    if (!calGrid) return; // guard: calendar DOM not ready
+
+    const MONTHS = [
+        'January','February','March','April','May','June',
+        'July','August','September','October','November','December'
+    ];
+    calMonthLabel.textContent = `${MONTHS[calMonth]} ${calYear}`;
+
+    const txByDay     = buildTxByDay();
+    const todayKey    = toDateKey(new Date());
+
+    // First weekday of the month (0=Sun…6=Sat)
+    const firstDow    = new Date(calYear, calMonth, 1).getDay();
+    // Total days in this month
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    // Days in the previous month (for leading faded cells)
+    const daysInPrev  = new Date(calYear, calMonth, 0).getDate();
+
+    const cells = [];
+
+    // Leading faded cells from previous month
+    for (let i = firstDow - 1; i >= 0; i--) {
+        cells.push({ day: daysInPrev - i, current: false });
+    }
+    // Current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+        cells.push({ day: d, current: true });
+    }
+    // Trailing faded cells to complete the last row
+    const remainder = cells.length % 7;
+    if (remainder !== 0) {
+        for (let d = 1; d <= 7 - remainder; d++) {
+            cells.push({ day: d, current: false });
+        }
+    }
+
+    calGrid.innerHTML = cells.map(cell => {
+        if (!cell.current) {
+            return `<div class="cal-day faded"><span>${cell.day}</span></div>`;
+        }
+
+        const key    = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}`;
+        const txs    = txByDay[key] || [];
+        const dotCount = Math.min(txs.length, 5);
+        const dotsHtml = dotCount > 0
+            ? `<div class="cal-day-dots">${'<div class="cal-dot"></div>'.repeat(dotCount)}</div>`
+            : '';
+
+        const isToday    = key === todayKey    ? 'today'    : '';
+        const isSelected = key === selectedCalDay ? 'selected' : '';
+
+        return `
+          <div class="cal-day ${isToday} ${isSelected}" onclick="selectCalDay('${key}')">
+            <span>${cell.day}</span>
+            ${dotsHtml}
+          </div>`;
+    }).join('');
+
+    // Render or hide the day detail panel
+    if (selectedCalDay && txByDay[selectedCalDay]) {
+        const dayTxs = txByDay[selectedCalDay];
+        const [y, m, d] = selectedCalDay.split('-').map(Number);
+        calDayDetailTitle.textContent = new Date(y, m - 1, d).toLocaleDateString(undefined, {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        calDayDetailList.innerHTML = dayTxs
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .map(t => {
+                const lenderName   = t.lenderId   === currentViewUserId ? 'You' : getPersonName(t.lenderId);
+                const borrowerName = t.borrowerId === currentViewUserId ? 'you' : getPersonName(t.borrowerId);
+                return `
+                  <div class="history-item" style="padding:0.75rem 0;">
+                    <div class="history-item-details">
+                      <strong>${lenderName} paid to ${borrowerName}</strong>
+                      <span class="history-item-desc">${t.description}</span>
+                    </div>
+                    <span class="history-item-amount">₹${t.amount.toFixed(2)}</span>
+                  </div>`;
+            }).join('');
+
+        calDayDetail.classList.remove('hidden');
+    } else if (selectedCalDay && !txByDay[selectedCalDay]) {
+        // Day selected but no transactions — show empty state
+        const [y, m, d] = selectedCalDay.split('-').map(Number);
+        calDayDetailTitle.textContent = new Date(y, m - 1, d).toLocaleDateString(undefined, {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+        calDayDetailList.innerHTML = '<div class="empty-state" style="padding:1.5rem 0;">No transactions on this day.</div>';
+        calDayDetail.classList.remove('hidden');
+    } else {
+        calDayDetail.classList.add('hidden');
+    }
+}
+
+function selectCalDay(key) {
+    // Toggle: clicking the same day again closes the panel
+    selectedCalDay = selectedCalDay === key ? null : key;
+    renderCalendar();
+}

@@ -14,3 +14,15 @@ pnpm-debug.log*
 # Operating System files
 .DS_Store
 Thumbs.db
+
+# User bank statement csv
+909010031163126.csv
+919010078896419.csv
+
+# Development/migration utilities
+server.js
+test-firebase.js
+test-firestore.js
+import-data.js
+
+

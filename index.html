@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SettleUp - Group Ledger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-top">
+                <div class="brand-section">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <h1>SettleUp</h1>
+                        <span id="sync-status" class="sync-status status-local">Local Mode</span>
+                    </div>
+                    <p>Peer-to-peer debt tracker</p>
+                </div>
+                
+                <nav class="app-nav">
+                    <button class="nav-btn active" data-tab="balances">Balances</button>
+                    <button class="nav-btn" data-tab="members">Members</button>
+                    <button class="nav-btn" data-tab="history">History</button>
+                </nav>
+                
+                <div class="header-controls">
+                    <button id="btn-theme-toggle" class="btn-theme-toggle" aria-label="Toggle Dark Mode" style="margin-right: 0.5rem;">🌙</button>
+                    <button class="btn btn-primary" id="btn-add-transaction">Log Transaction</button>
+                </div>
+            </div>
+            
+            <div class="header-bottom" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+                <div class="view-as-container" style="margin-top: 0;">
+                    <label for="select-view-as">View as:</label>
+                    <select id="select-view-as" class="view-as-select">
+                        <option value="">Everyone (Group Overview)</option>
+                    </select>
+                </div>
+                
+                <div id="personal-summary" class="personal-summary hidden" style="margin-top: 0;"></div>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <!-- Balances Tab Page -->
+            <div class="tab-content active" id="tab-balances">
+                <section class="card" id="balances-section">
+                    <div class="card-header">
+                        <h2>Net Balances</h2>
+                    </div>
+                    <div class="balances-list" id="balances-list">
+                        <!-- Balances will be injected here -->
+                        <div class="empty-state">No balances yet. Add people and log a transaction!</div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Members Tab Page -->
+            <div class="tab-content" id="tab-members">
+                <section class="card" id="people-section">
+                    <div class="card-header">
+                        <h2>Group Members</h2>
+                    </div>
+                    <div class="people-list" id="people-list">
+                        <!-- People will be injected here -->
+                    </div>
+                    <form id="form-add-person" class="add-form">
+                        <input type="text" id="input-person-name" placeholder="Enter name..." required>
+                        <button type="submit" class="btn btn-secondary">Add Person</button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- History Tab Page -->
+            <div class="tab-content" id="tab-history">
+                <section class="card" id="history-section">
+                    <div class="card-header">
+                        <h2>Transaction History</h2>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <label for="select-history-limit" style="margin-bottom: 0; font-size: 14px; color: var(--text-secondary); font-weight: 500;">Show:</label>
+                            <select id="select-history-limit" style="padding: 0.25rem 0.5rem; font-size: 14px; width: auto; border-radius: var(--radius-sm); background: var(--bg-secondary); border: none; cursor: pointer; font-weight: 600; color: var(--text-primary);">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="history-list" id="history-list">
+                        <!-- History will be injected here -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modal-transaction">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Log Transaction</h2>
+                <button class="btn-close" id="btn-close-modal">&times;</button>
+            </div>
+            <form id="form-transaction">
+                <div class="form-group">
+                    <label for="select-lender">Who paid?</label>
+                    <select id="select-lender" required>
+                        <option value="">Select a person...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="select-borrower">Who owes them?</label>
+                    <select id="select-borrower" required>
+                        <option value="">Select a person...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="input-amount">Amount</label>
+                    <input type="number" id="input-amount" step="0.01" min="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="input-description">Description</label>
+                    <input type="text" id="input-description" placeholder="e.g., Dinner, Cab ride...">
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Save Transaction</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Individual History Modal -->
+    <div class="modal-overlay" id="modal-individual-history">
+        <div class="modal" style="max-width: 540px;">
+            <div class="modal-header">
+                <h2 id="ind-history-title">History</h2>
+                <button class="btn-close" id="btn-close-ind-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="ind-history-summary" class="personal-summary" style="margin-top: 0; margin-bottom: 1.5rem; display: block; text-align: center; width: 100%;"></div>
+                <div class="history-list" id="ind-history-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.5rem 1rem;">
+                    <!-- Individual transactions will be injected here -->
+                </div>
+                <div id="ind-history-settle-container" style="display: flex; justify-content: center;">
+                    <!-- Settle up button will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
